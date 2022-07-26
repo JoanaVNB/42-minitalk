@@ -6,7 +6,7 @@
 /*   By: jvidon-n <joanavidon@gmail.com>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 17:10:39 by jvidon-n          #+#    #+#             */
-/*   Updated: 2022/07/23 01:10:58 by jvidon-n         ###   ########.fr       */
+/*   Updated: 2022/07/24 16:52:20 by jvidon-n         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,39 +39,35 @@ void	ft_putnbr(unsigned int n)
 
 void	handler_action(int sig, siginfo_t *info, void *context)
 {
-	static unsigned int	i = 0;
-	static unsigned int	c =0;
-	static pid_t			client_pid = 0;
+	static unsigned int	i;
+	static unsigned int	c;
+	static pid_t		client_pid = 0;
 
 	(void)context;
-	if (!client_pid)
-		client_pid = info->si_pid;
-	if ( i > 7)
+	client_pid = info->si_pid;
+	if (i > 7)
 	{
 		i = 0;
 		c = 0;
 	}
 	if (sig == SIGUSR2)
 		c |= 1 << i;
-	if (i == 7)
-	{
-		if (c == '\0')
-			write(1, "\n", 1);
-		write(1, &c, 1);
-	}
 	kill(client_pid, SIGUSR1);
 	i++;
+	if (i == 7)
+		write(1, &c, 1);
 }
 
 int	main(void)
 {
 	struct sigaction	action;
-	pid_t	pid;
+	pid_t				pid;
 
 	pid = getpid();
-	write(1, "Server PID:", 15);
+	write(1, "Server PID:", 11);
 	ft_putnbr(pid);
 	write(1, "\n", 1);
+	sigemptyset(&action.sa_mask);
 	action.sa_sigaction = handler_action;
 	action.sa_flags = SA_SIGINFO;
 	sigaction(SIGUSR1, &action, NULL);
@@ -79,3 +75,43 @@ int	main(void)
 	while (1)
 		pause();
 }
+
+/* void servidor(int c)
+{
+	static int	i;
+	static char construindo;
+
+	if (i > 7)
+	{
+		construindo = 0;
+		i = 0;
+	}
+	if (c == 1)
+		construindo |= 1 << i;
+	printf("Chamado %d vezes\n", i);
+	if (i == 7)
+		 printf("%c\n", construindo);
+	i++;
+}
+int main ()
+{
+	servidor(1);
+  servidor(0);
+  servidor(0);
+  servidor(0);
+
+  servidor(0);
+  servidor(1);
+  servidor(1);
+  servidor(0);
+
+  servidor(1);
+  servidor(0);
+  servidor(0);
+  servidor(0);
+
+  servidor(0);
+  servidor(1);
+  servidor(1);
+  servidor(0);
+} */

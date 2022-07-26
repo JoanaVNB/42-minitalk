@@ -10,25 +10,28 @@ NAMESVR = server
 
 NAMECLT = client
 
+MSG1 = @echo "Compiled ✔︎"
+MSG2 = @echo "Cleaned ✔︎"
+
 all: $(NAMESVR) $(NAMECLT)
 
 $(NAMESVR): $(FILESVR)
 	gcc $(CFLAGS) $(FILESVR) $(SFLAGS) -o $(NAMESVR)
+	${MSG1}
 
 $(NAMECLT): $(FILECLT)
 	gcc $(CFLAGS) $(FILECLT) -o $(NAMECLT)
-
+	${MSG1}
+	
 clean:
 	rm $(NAMESVR) $(NAMECLT)
 
 fclean: clean
 
-bonus: all
-
-norma:
-	norminette $(FILECLT) $(FILESVR)
-
 run:
 	./server
+
+valgrind:
+	valgrind --leak-check=full ./server
 
 re: clean all
